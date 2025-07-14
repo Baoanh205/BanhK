@@ -37,98 +37,151 @@
         }
         return gk_fileData[filename] || "";
         }
-        </script>```html
-<!DOCTYPE html>
+        </script><!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nature Retreat</title>
-    <!-- Swiper CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
     <style>
-        /* Base styles for general layout */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* Mobile-first approach */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #2e7d32;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        nav {
+            background-color: #4caf50;
+            padding: 1rem;
         }
 
         nav ul {
             list-style: none;
-            padding: 0;
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 1rem;
         }
 
         nav a {
+            color: white;
             text-decoration: none;
-            color: #333;
-            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
 
         section {
-            margin: 40px 0;
+            padding: 1rem;
+            background-color: white;
         }
 
-        .swiper-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
+        .gallery {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
         }
 
-        .swiper-slide {
+        figure {
+            background-color: #e0e0e0;
+            padding: 1rem;
             text-align: center;
+            border: 2px solid #666;
         }
 
-        .swiper-slide img {
+        figure img {
             width: 100%;
             height: auto;
-            object-fit: cover;
-            max-height: 400px;
         }
 
-        .swiper-pagination-bullet {
-            background: #333;
-        }
-
-        .swiper-button-prev,
-        .swiper-button-next {
+        figcaption {
+            margin-top: 0.5rem;
             color: #333;
         }
 
         footer {
+            background-color: #2e7d32;
+            color: white;
             text-align: center;
-            padding: 20px 0;
+            padding: 1rem;
+            margin-top: 1rem;
         }
 
-        /* Tablet view: 772px and up */
-        @media (min-width: 772px) {
-            .swiper-slide {
-                width: 45%;
+        /* Tablet view */
+        @media screen and (min-width: 772px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .swiper-slide img {
-                height: auto;
-                max-height: 300px;
+            figure {
+                border-radius: 50%;
+            }
+
+            figure:last-child {
+                grid-column: span 2;
             }
         }
 
-        /* Large screen view: 998px and up */
-        @media (min-width: 998px) {
-            .swiper-slide {
-                width: 30%;
+        /* Large screen view */
+        @media screen and (min-width: 992px) {
+            figure {
+                border-radius: 0;
+            }
+
+            figure:nth-child(3n) {
+                grid-column: span 2;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            body {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* Dark mode */
+        @media (prefers-color-scheme: dark) {
+            figure {
+                background-color: #333;
+                border-color: #000;
+            }
+
+            figcaption {
+                color: #ffeb3b;
             }
         }
     </style>
 </head>
 <body>
-    <a href="#main-content">Skip to Main Content</a>
+    <a href="#main-content" class="skip-link">Skip to Main Content</a>
     
     <header>
         <h1>Welcome to Nature Retreat</h1>
-        <p>Discover tranquility in the heart of nature.</p>
+        <p>Embrace the peace and beauty of the natural world.</p>
     </header>
 
     <nav>
@@ -142,31 +195,32 @@
     <main id="main-content">
         <section id="home">
             <h2>Home</h2>
-            <p>Experience the serenity of nature at our retreat.</p>
+            <p>Immerse yourself in the calming atmosphere of our eco-friendly retreat, surrounded by lush forests and pristine lakes.</p>
         </section>
 
-        <section id="gallery">
+        <section id="gallery" class="gallery">
             <h2>Gallery</h2>
-            <div class="swiper-container">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide"><img src="https://picsum.photos/600/400?random=1" alt="Nature image 1"></div>
-                    <div class="swiper-slide"><img src="https://picsum.photos/600/400?random=2" alt="Nature image 2"></div>
-                    <div class="swiper-slide"><img src="https://picsum.photos/600/400?random=3" alt="Nature image 3"></div>
-                    <div class="swiper-slide"><img src="https://picsum.photos/600/400?random=4" alt="Nature image 4"></div>
-                    <div class="swiper-slide"><img src="https://picsum.photos/600/400?random=5" alt="Nature image 5"></div>
-                    <div class="swiper-slide"><img src="https://picsum.photos/600/400?random=6" alt="Nature image 6"></div>
-                </div>
-                <!-- Add Pagination -->
-                <div class="swiper-pagination"></div>
-                <!-- Add Navigation -->
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-button-next"></div>
-            </div>
+            <figure>
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Serene lake surrounded by evergreen trees at sunset">
+                <figcaption>Lake Serenity at Sunset</figcaption>
+            </figure>
+            <figure>
+                <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e" alt="Meadow with wildflowers under a clear blue sky">
+                <figcaption>Wildflower Meadow</figcaption>
+            </figure>
+            <figure>
+                <img src="https://images.unsplash.com/photo-1433086966358-54859d0ed716" alt="Wooden cabin nestled among tall pines">
+                <figcaption>Cozy Forest Cabin</figcaption>
+            </figure>
+            <figure>
+                <img src="https://images.unsplash.com/photo-1508739773434-c26b3d09e206" alt="Mountain trail with scenic overlook">
+                <figcaption>Mountain Trail Overlook</figcaption>
+            </figure>
         </section>
 
         <section id="contact">
             <h2>Contact Us</h2>
-            <p>Email: <a href="mailto:info@natretreat.com">info@natretreat.com</a></p>
+            <p>Email: info@natretreat.com</p>
             <p>Phone: (123) 456-7890</p>
             <p>Address: 123 Nature Lane, Serenity, CA</p>
         </section>
@@ -175,36 +229,5 @@
     <footer>
         <p>© 2025 Nature Retreat</p>
     </footer>
-
-    <!-- Swiper JS -->
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const swiper = new Swiper('.swiper-container', {
-                slidesPerView: 1,
-                spaceBetween: 20,
-                loop: true,
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                breakpoints: {
-                    772: {
-                        slidesPerView: 2,
-                        spaceBetween: 20,
-                    },
-                    998: {
-                        slidesPerView: 3,
-                        spaceBetween: 20,
-                    },
-                },
-            });
-        });
-    </script>
 </body>
 </html>
-```
