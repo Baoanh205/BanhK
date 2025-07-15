@@ -38,196 +38,161 @@
         return gk_fileData[filename] || "";
         }
         </script><!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nature Retreat</title>
-    <style>
-        /* Mobile-first approach */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            scroll-behavior: smooth;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        header {
-            background-color: #2e7d32;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-        }
-
-        nav {
-            background-color: #4caf50;
-            padding: 1rem;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
-
-        main {
-            padding: 1rem;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        section {
-            padding: 1rem;
-            background-color: white;
-        }
-
-        .gallery {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-
-        figure {
-            background-color: #e0e0e0;
-            padding: 1rem;
-            text-align: center;
-            border: 2px solid #666;
-        }
-
-        figure img {
-            width: 100%;
-            height: auto;
-        }
-
-        figcaption {
-            margin-top: 0.5rem;
-            color: #333;
-        }
-
-        footer {
-            background-color: #2e7d32;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        /* Tablet view */
-        @media screen and (min-width: 772px) {
-            .gallery {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            figure {
-                border-radius: 50%;
-            }
-
-            figure:last-child {
-                grid-column: span 2;
-            }
-        }
-
-        /* Large screen view */
-        @media screen and (min-width: 992px) {
-            figure {
-                border-radius: 0;
-            }
-
-            figure:nth-child(3n) {
-                grid-column: span 2;
-            }
-        }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            body {
-                scroll-behavior: auto;
-            }
-        }
-
-        /* Dark mode */
-        @media (prefers-color-scheme: dark) {
-            figure {
-                background-color: #333;
-                border-color: #000;
-            }
-
-            figcaption {
-                color: #ffeb3b;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh Mục Đầu Tư</title>
+  <script src="https://cdn.tailwindcss.com/3.4.3"></script>
+  <style>
+    .project-card {
+      transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.3s ease;
+      opacity: 1;
+    }
+    .project-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .project-card.hidden {
+      opacity: 0;
+      height: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+    .high-contrast {
+      background-color: #000 !important;
+      color: #fff !important;
+    }
+    .high-contrast .project-card {
+      background-color: #1f1f1f !important;
+      border: 2px solid #fff !important;
+    }
+    .high-contrast button {
+      background-color: #fff !important;
+      color: #000 !important;
+      border: 1px solid #000 !important;
+    }
+    .filter-btn:focus, #theme-toggle:focus, #contrast-toggle:focus {
+      outline: 3px solid #3b82f6;
+      outline-offset: 2px;
+    }
+    @media (max-width: 768px) {
+      .project-card {
+        margin-bottom: 2rem;
+      }
+      .filter-btn {
+        padding: 0.5rem 1.25rem;
+        font-size: 0.9rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .project-card img {
+        height: 180px;
+      }
+      h1 {
+        font-size: 1.75rem;
+      }
+      .filter-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
 </head>
-<body>
-    <a href="#main-content" class="skip-link">Skip to Main Content</a>
-    
-    <header>
-        <h1>Welcome to Nature Retreat</h1>
-        <p>Embrace the peace and beauty of the natural world.</p>
-    </header>
+<body class="bg-gray-50 font-sans transition-colors duration-500">
+  <header class="bg-white shadow-lg p-6 sticky top-0 z-10">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-3xl font-bold text-gray-800">Danh Mục Đầu Tư</h1>
+      <nav class="flex gap-3">
+        <button id="theme-toggle" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors" aria-label="Chuyển đổi chủ đề sáng/tối">Chuyển Chủ Đề</button>
+        <button id="contrast-toggle" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors" aria-label="Chuyển đổi độ tương phản cao">Độ Tương Phản</button>
+      </nav>
+    </div>
+  </header>
+  <main class="container mx-auto py-12">
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-700 mb-6">Lọc Dự Án</h2>
+      <div class="flex flex-wrap gap-3">
+        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="all" tabindex="0">Tất Cả</button>
+        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="web" tabindex="0">Web</button>
+        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="mobile" tabindex="0">Di Động</button>
+        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="design" tabindex="0">Thiết Kế</button>
+      </div>
+    </section>
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="web">
+        <img src="https://via.placeholder.com/400x250?text=Web+Project+1" alt="Dự án web thương mại" class="w-full h-60 object-cover rounded-lg mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Nền Tảng Thương Mại</h3>
+        <p class="text-gray-600">Website thương mại điện tử với tích hợp thanh toán và quản lý kho hiệu quả.</p>
+      </article>
+      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="mobile">
+        <img src="https://via.placeholder.com/400x250?text=Mobile+App+1" alt="Dự án ứng dụng ghi chú" class="w-full h-60 object-cover rounded-lg mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Ứng Dụng Ghi Chú</h3>
+        <p class="text-gray-600">Ứng dụng di động hỗ trợ ghi chú nhanh với đồng bộ hóa đám mây.</p>
+      </article>
+      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="design">
+        <img src="https://via.placeholder.com/400x250?text=UI+Design+1" alt="Dự án thiết kế giao diện" class="w-full h-60 object-cover rounded-lg mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Thiết Kế Giao Diện</h3>
+        <p class="text-gray-600">Thiết kế UI/UX tối ưu cho ứng dụng quản lý tài chính cá nhân.</p>
+      </article>
+      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="web">
+        <img src="https://via.placeholder.com/400x250?text=Web+Project+2" alt="Dự án blog công nghệ" class="w-full h-60 object-cover rounded-lg mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Blog Công Nghệ</h3>
+        <p class="text-gray-600">Trang web blog tích hợp CMS, tối ưu SEO và tốc độ tải.</p>
+      </article>
+      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="mobile">
+        <img src="https://via.placeholder.com/400x250?text=Mobile+App+2" alt="Dự án ứng dụng thể thao" class="w-full h-60 object-cover rounded-lg mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Ứng Dụng Thể Thao</h3>
+        <p class="text-gray-600">Ứng dụng theo dõi hoạt động thể thao với phân tích dữ liệu chi tiết.</p>
+      </article>
+      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="design">
+        <img src="https://via.placeholder.com/400x250?text=Brand+Design" alt="Dự án thiết kế thương hiệu" class="w-full h-60 object-cover rounded-lg mb-4">
+        <h3 class="text-xl font-semibold text-gray-800">Thiết Kế Thương Hiệu</h3>
+        <p class="text-gray-600">Bộ nhận diện thương hiệu sáng tạo cho startup công nghệ.</p>
+      </article>
+    </section>
+  </main>
+  <script>
+    // Chuyển đổi chủ đề sáng/tối
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('bg-gray-900');
+      document.body.classList.toggle('text-white');
+      document.querySelectorAll('.project-card').forEach(card => {
+        card.classList.toggle('bg-gray-800');
+        card.classList.toggle('text-white');
+      });
+      document.querySelector('header').classList.toggle('bg-gray-800');
+    });
 
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-    </nav>
+    // Chuyển đổi độ tương phản cao
+    document.getElementById('contrast-toggle').addEventListener('click', () => {
+      document.body.classList.toggle('high-contrast');
+      document.querySelectorAll('.project-card').forEach(card => {
+        card.classList.toggle('text-white');
+      });
+    });
 
-    <main id="main-content">
-        <section id="home">
-            <h2>Home</h2>
-            <p>Immerse yourself in the calming atmosphere of our eco-friendly retreat, surrounded by lush forests and pristine lakes.</p>
-        </section>
-
-        <section id="gallery" class="gallery">
-            <h2>Gallery</h2>
-            <figure>
-                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e" alt="Serene lake surrounded by evergreen trees at sunset">
-                <figcaption>Lake Serenity at Sunset</figcaption>
-            </figure>
-            <figure>
-                <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e" alt="Meadow with wildflowers under a clear blue sky">
-                <figcaption>Wildflower Meadow</figcaption>
-            </figure>
-            <figure>
-                <img src="https://images.unsplash.com/photo-1433086966358-54859d0ed716" alt="Wooden cabin nestled among tall pines">
-                <figcaption>Cozy Forest Cabin</figcaption>
-            </figure>
-            <figure>
-                <img src="https://images.unsplash.com/photo-1508739773434-c26b3d09e206" alt="Mountain trail with scenic overlook">
-                <figcaption>Mountain Trail Overlook</figcaption>
-            </figure>
-        </section>
-
-        <section id="contact">
-            <h2>Contact Us</h2>
-            <p>Email: info@natretreat.com</p>
-            <p>Phone: (123) 456-7890</p>
-            <p>Address: 123 Nature Lane, Serenity, CA</p>
-        </section>
-    </main>
-
-    <footer>
-        <p>© 2025 Nature Retreat</p>
-    </footer>
+    // Bộ lọc danh mục với hiệu ứng chuyển đổi
+    document.querySelectorAll('.filter-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const filter = button.dataset.filter;
+        document.querySelectorAll('.project-card').forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      });
+      // Hỗ trợ điều hướng bằng bàn phím
+      button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          button.click();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
