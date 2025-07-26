@@ -1,198 +1,474 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Danh Mục Đầu Tư</title>
-  <script src="https://cdn.tailwindcss.com/3.4.3"></script>
-  <style>
-    .project-card {
-      transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.3s ease;
-      opacity: 1;
-    }
-    .project-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    }
-    .project-card.hidden {
-      opacity: 0;
-      height: 0;
-      margin: 0;
-      overflow: hidden;
-    }
-    .high-contrast {
-      background-color: #000 !important;
-      color: #fff !important;
-    }
-    .high-contrast .project-card {
-      background-color: #1f1f1f !important;
-      border: 2px solid #fff !important;
-    }
-    .high-contrast button {
-      background-color: #fff !important;
-      color: #000 !important;
-      border: 1px solid #000 !important;
-    }
-    .filter-btn:focus, #theme-toggle:focus, #contrast-toggle:focus {
-      outline: 3px solid #3b82f6;
-      outline-offset: 2px;
-    }
-    @media (max-width: 768px) {
-      .project-card {
-        margin-bottom: 2rem;
-      }
-      .filter-btn {
-        padding: 0.5rem 1.25rem;
-        font-size: 0.9rem;
-      }
-    }
-    @media (max-width: 480px) {
-      .project-card img {
-        height: 180px;
-      }
-      h1 {
-        font-size: 1.75rem;
-      }
-      .filter-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-      }
-    }
-  </style>
-</head>
-<body class="bg-gray-50 font-sans transition-colors duration-500">
-  <header class="bg-white shadow-lg p-6 sticky top-0 z-10">
-    <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-800">Danh Mục Đầu Tư</h1>
-      <nav class="flex gap-3">
-        <button id="theme-toggle" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors" aria-label="Chuyển đổi chủ đề sáng/tối">Chuyển Chủ Đề</button>
-        <button id="contrast-toggle" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors" aria-label="Chuyển đổi độ tương phản cao">Độ Tương Phản</button>
-      </nav>
-    </div>
-  </header>
-  <main class="container mx-auto py-12">
-    <section class="mb-12">
-      <h2 class="text-2xl font-semibold text-gray-700 mb-6">Lọc Dự Án</h2>
-      <div class="flex flex-wrap gap-3">
-        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="all" tabindex="0">Tất Cả</button>
-        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="web" tabindex="0">Web</button>
-        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="mobile" tabindex="0">Di Động</button>
-        <button class="filter-btn px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:bg-indigo-800 transition-colors" data-filter="design" tabindex="0">Thiết Kế</button>
-      </div>
-    </section>
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="web">
-        <img src="https://via.placeholder.com/400x250?text=Web+Project+1" alt="Dự án web thương mại" class="w-full h-60 object-cover rounded-lg mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Nền Tảng Thương Mại</h3>
-        <p class="text-gray-600">Website thương mại điện tử với tích hợp thanh toán và quản lý kho hiệu quả.</p>
-      </article>
-      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="mobile">
-        <img src="https://via.placeholder.com/400x250?text=Mobile+App+1" alt="Dự án ứng dụng ghi chú" class="w-full h-60 object-cover rounded-lg mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Ứng Dụng Ghi Chú</h3>
-        <p class="text-gray-600">Ứng dụng di động hỗ trợ ghi chú nhanh với đồng bộ hóa đám mây.</p>
-      </article>
-      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="design">
-        <img src="https://via.placeholder.com/400x250?text=UI+Design+1" alt="Dự án thiết kế giao diện" class="w-full h-60 object-cover rounded-lg mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Thiết Kế Giao Diện</h3>
-        <p class="text-gray-600">Thiết kế UI/UX tối ưu cho ứng dụng quản lý tài chính cá nhân.</p>
-      </article>
-      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="web">
-        <img src="https://via.placeholder.com/400x250?text=Web+Project+2" alt="Dự án blog công nghệ" class="w-full h-60 object-cover rounded-lg mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Blog Công Nghệ</h3>
-        <p class="text-gray-600">Trang web blog tích hợp CMS, tối ưu SEO và tốc độ tải.</p>
-      </article>
-      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="mobile">
-        <img src="https://via.placeholder.com/400x250?text=Mobile+App+2" alt="Dự án ứng dụng thể thao" class="w-full h-60 object-cover rounded-lg mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Ứng Dụng Thể Thao</h3>
-        <p class="text-gray-600">Ứng dụng theo dõi hoạt động thể thao với phân tích dữ liệu chi tiết.</p>
-      </article>
-      <article class="project-card bg-white p-6 rounded-xl shadow-md" data-category="design">
-        <img src="https://via.placeholder.com/400x250?text=Brand+Design" alt="Dự án thiết kế thương hiệu" class="w-full h-60 object-cover rounded-lg mb-4">
-        <h3 class="text-xl font-semibold text-gray-800">Thiết Kế Thương Hiệu</h3>
-        <p class="text-gray-600">Bộ nhận diện thương hiệu sáng tạo cho startup công nghệ.</p>
-      </article>
-    </section>
-  </main>
-  <script>
-    // Chuyển đổi chủ đề sáng/tối
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      document.body.classList.toggle('bg-gray-900');
-      document.body.classList.toggle('text-white');
-      document.querySelectorAll('.project-card').forEach(card => {
-        card.classList.toggle('bg-gray-800');
-        card.classList.toggle('text-white');
-      });
-      document.querySelector('header').classList.toggle('bg-gray-800');
-    });
-
-    // Chuyển đổi độ tương phản cao
-    document.getElementById('contrast-toggle').addEventListener('click', () => {
-      document.body.classList.toggle('high-contrast');
-      document.querySelectorAll('.project-card').forEach(card => {
-        card.classList.toggle('text-white');
-      });
-    });
-
-    // Bộ lọc danh mục với hiệu ứng chuyển đổi
-    document.querySelectorAll('.filter-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        const filter = button.dataset.filter;
-        document.querySelectorAll('.project-card').forEach(card => {
-          if (filter === 'all' || card.dataset.category === filter) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
-        });
-      });
-      // Hỗ trợ điều hướng bằng bàn phím
-      button.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          button.click();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster - Ứng dụng quản lý công việc cá nhân</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
         }
-      });
-    });
-  </script>
+        
+        .task-completed {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+        
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .category-work {
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+        
+        .category-personal {
+            background-color: #ecfccb;
+            color: #65a30d;
+        }
+        
+        .category-shopping {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .category-health {
+            background-color: #ede9fe;
+            color: #7c3aed;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-3xl font-bold text-slate-800 flex items-center">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/b3bf0250-824d-4446-bca3-5e88df5e1433.png" alt="TaskMaster logo with checkmark symbol in deep blue" class="mr-3 rounded-lg">
+                    TaskMaster
+                </h1>
+                <div class="flex space-x-3">
+                    <button id="exportBtn" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 transition">
+                        Xuất dữ liệu
+                    </button>
+                    <button id="importBtn" class="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 transition">
+                        Nhập dữ liệu
+                    </button>
+                </div>
+            </div>
+            <p class="text-slate-600">Quản lý công việc cá nhân một cách hiệu quả</p>
+        </header>
+
+        <!-- Stats Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                <p class="text-sm text-slate-500">Tổng công việc</p>
+                <p class="text-2xl font-semibold text-slate-800" id="totalTasks">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                <p class="text-sm text-slate-500">Đã hoàn thành</p>
+                <p class="text-2xl font-semibold text-slate-800" id="completedTasks">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                <p class="text-sm text-slate-500">Chưa hoàn thành</p>
+                <p class="text-2xl font-semibold text-slate-800" id="pendingTasks">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-100">
+                <p class="text-sm text-slate-500">Hiệu suất</p>
+                <p class="text-2xl font-semibold text-slate-800" id="performance">0%</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Add Task Form -->
+            <div class="md:w-1/3">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 sticky top-4">
+                    <h2 class="text-xl font-semibold text-slate-800 mb-4">Thêm công việc mới</h2>
+                    <form id="taskForm">
+                        <div class="mb-4">
+                            <label for="taskTitle" class="block text-sm font-medium text-slate-700 mb-1">Tiêu đề công việc</label>
+                            <input type="text" id="taskTitle" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập tiêu đề công việc" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="taskDescription" class="block text-sm font-medium text-slate-700 mb-1">Mô tả</label>
+                            <textarea id="taskDescription" rows="2" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập mô tả công việc"></textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="taskDueDate" class="block text-sm font-medium text-slate-700 mb-1">Hạn chót</label>
+                                <input type="date" id="taskDueDate" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="taskPriority" class="block text-sm font-medium text-slate-700 mb-1">Mức độ ưu tiên</label>
+                                <select id="taskPriority" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <option value="low">Thấp</option>
+                                    <option value="medium" selected>Trung bình</option>
+                                    <option value="high">Cao</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="taskCategory" class="block text-sm font-medium text-slate-700 mb-1">Danh mục</label>
+                            <select id="taskCategory" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="personal">Cá nhân</option>
+                                <option value="work">Công việc</option>
+                                <option value="shopping">Mua sắm</option>
+                                <option value="health">Sức khỏe</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                            Thêm công việc
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="md:w-2/3">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-slate-800">Danh sách công việc</h2>
+                        <div class="flex space-x-2">
+                            <select id="filterPriority" class="px-3 py-1 border border-slate-300 rounded-lg text-sm">
+                                <option value="all">Tất cả mức độ</option>
+                                <option value="high">Cao</option>
+                                <option value="medium">Trung bình</option>
+                                <option value="low">Thấp</option>
+                            </select>
+                            <select id="filterCategory" class="px-3 py-1 border border-slate-300 rounded-lg text-sm">
+                                <option value="all">Tất cả danh mục</option>
+                                <option value="personal">Cá nhân</option>
+                                <option value="work">Công việc</option>
+                                <option value="shopping">Mua sắm</option>
+                                <option value="health">Sức khỏe</option>
+                            </select>
+                            <select id="filterStatus" class="px-3 py-1 border border-slate-300 rounded-lg text-sm">
+                                <option value="all">Tất cả trạng thái</option>
+                                <option value="completed">Đã hoàn thành</option>
+                                <option value="pending">Chưa hoàn thành</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="taskList" class="space-y-3">
+                        <!-- Tasks will be added here dynamically -->
+                        <div class="text-center py-8 text-slate-400">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e8943818-80de-421a-a9f6-de99561c6042.png" alt="No tasks illustration showing an empty clipboard with a pencil" class="mx-auto mb-4 opacity-50">
+                            <p>Bạn chưa có công việc nào. Hãy thêm công việc đầu tiên!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Task Manager Class
+        class TaskManager {
+            constructor() {
+                this.tasks = JSON.parse(localStorage.getItem('taskmaster_tasks')) || [];
+                this.currentFilter = {
+                    priority: 'all',
+                    category: 'all',
+                    status: 'all'
+                };
+            }
+
+            addTask(task) {
+                task.id = Date.now().toString();
+                task.createdAt = new Date().toISOString();
+                task.completed = false;
+                this.tasks.unshift(task);
+                this.saveTasks();
+                return task;
+            }
+
+            updateTask(id, updates) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    Object.assign(task, updates);
+                    this.saveTasks();
+                }
+                return task;
+            }
+
+            deleteTask(id) {
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                this.saveTasks();
+            }
+
+            getFilteredTasks() {
+                return this.tasks.filter(task => {
+                    const matchesPriority = this.currentFilter.priority === 'all' || task.priority === this.currentFilter.priority;
+                    const matchesCategory = this.currentFilter.category === 'all' || task.category === this.currentFilter.category;
+                    const matchesStatus = this.currentFilter.status === 'all' || 
+                                          (this.currentFilter.status === 'completed' && task.completed) ||
+                                          (this.currentFilter.status === 'pending' && !task.completed);
+                    return matchesPriority && matchesCategory && matchesStatus;
+                });
+            }
+
+            saveTasks() {
+                localStorage.setItem('taskmaster_tasks', JSON.stringify(this.tasks));
+                this.updateStats();
+            }
+
+            updateStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(task => task.completed).length;
+                const pending = total - completed;
+                const performance = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                document.getElementById('totalTasks').textContent = total;
+                document.getElementById('completedTasks').textContent = completed;
+                document.getElementById('pendingTasks').textContent = pending;
+                document.getElementById('performance').textContent = `${performance}%`;
+            }
+
+            exportTasks() {
+                const data = JSON.stringify(this.tasks, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `taskmaster-tasks-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+
+            importTasks(event, callback) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedTasks = JSON.parse(e.target.result);
+                        if (Array.isArray(importedTasks)) {
+                            this.tasks = importedTasks;
+                            this.saveTasks();
+                            if (typeof callback === 'function') callback();
+                        }
+                    } catch (error) {
+                        alert('Tập tin không hợp lệ. Vui lòng chọn tập tin JSON xuất từ TaskMaster.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // UI Controller Class
+        class UIController {
+            constructor(taskManager) {
+                this.taskManager = taskManager;
+                this.setupEventListeners();
+                this.renderTasks();
+                this.taskManager.updateStats();
+            }
+
+            setupEventListeners() {
+                // Add task form
+                document.getElementById('taskForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const title = document.getElementById('taskTitle').value.trim();
+                    const description = document.getElementById('taskDescription').value.trim();
+                    const dueDate = document.getElementById('taskDueDate').value;
+                    const priority = document.getElementById('taskPriority').value;
+                    const category = document.getElementById('taskCategory').value;
+                    
+                    if (title) {
+                        const task = {
+                            title,
+                            description,
+                            dueDate: dueDate || null,
+                            priority,
+                            category
+                        };
+                        
+                        this.taskManager.addTask(task);
+                        this.renderTasks();
+                        e.target.reset();
+                    }
+                });
+
+                // Filter controls
+                document.getElementById('filterPriority').addEventListener('change', (e) => {
+                    this.taskManager.currentFilter.priority = e.target.value;
+                    this.renderTasks();
+                });
+
+                document.getElementById('filterCategory').addEventListener('change', (e) => {
+                    this.taskManager.currentFilter.category = e.target.value;
+                    this.renderTasks();
+                });
+
+                document.getElementById('filterStatus').addEventListener('change', (e) => {
+                    this.taskManager.currentFilter.status = e.target.value;
+                    this.renderTasks();
+                });
+
+                // Export button
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.taskManager.exportTasks();
+                });
+
+                // Import button
+                document.getElementById('importBtn').addEventListener('click', () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.addEventListener('change', (e) => {
+                        this.taskManager.importTasks(e, () => {
+                            this.renderTasks();
+                        });
+                    });
+                    input.click();
+                });
+            }
+
+            formatDate(dateString) {
+                if (!dateString) return 'Không có hạn chót';
+                
+                const options = { day: 'numeric', month: 'numeric', year: 'numeric' };
+                return new Date(dateString).toLocaleDateString('vi-VN', options);
+            }
+
+            getPriorityBadge(priority) {
+                const priorities = {
+                    high: { text: 'Cao', class: 'bg-red-100 text-red-800' },
+                    medium: { text: 'Trung bình', class: 'bg-yellow-100 text-yellow-800' },
+                    low: { text: 'Thấp', class: 'bg-green-100 text-green-800' }
+                };
+                return `<span class="text-xs px-2 py-1 rounded-full ${priorities[priority].class}">${priorities[priority].text}</span>`;
+            }
+
+            getCategoryBadge(category) {
+                const categories = {
+                    work: { text: 'Công việc', class: 'category-work' },
+                    personal: { text: 'Cá nhân', class: 'category-personal' },
+                    shopping: { text: 'Mua sắm', class: 'category-shopping' },
+                    health: { text: 'Sức khỏe', class: 'category-health' }
+                };
+                return `<span class="text-xs px-2 py-1 rounded-full ${categories[category].class}">${categories[category].text}</span>`;
+            }
+
+            renderTasks() {
+                const tasks = this.taskManager.getFilteredTasks();
+                const taskList = document.getElementById('taskList');
+                
+                if (tasks.length === 0) {
+                    taskList.innerHTML = `
+                        <div class="text-center py-8 text-slate-400">
+                            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/58323756-cb0e-4986-8e80-32a1ac613896.png" alt="No tasks illustration showing an empty clipboard with a pencil" class="mx-auto mb-4 opacity-50">
+                            <p>Không tìm thấy công việc phù hợp với bộ lọc</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                taskList.innerHTML = tasks.map(task => `
+                    <div class="bg-white p-4 rounded-lg border border-slate-100 shadow-sm fade-in priority-${task.priority} ${
+                        task.completed ? 'opacity-70' : ''
+                    }" data-task-id="${task.id}">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                                    class="mr-3 h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                <h3 class="${task.completed ? 'task-completed' : 'text-slate-800'} font-medium">${task.title}</h3>
+                            </div>
+                            <div class="flex space-x-2">
+                                ${this.getPriorityBadge(task.priority)}
+                                ${this.getCategoryBadge(task.category)}
+                            </div>
+                        </div>
+                        ${task.description ? `<p class="text-sm text-slate-600 mb-3 ml-8 ${
+                            task.completed ? 'task-completed' : ''
+                        }">${task.description}</p>` : ''}
+                        <div class="flex justify-between items-center text-sm text-slate-500">
+                            <div>
+                                <span>${this.formatDate(task.dueDate)}</span>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="edit-btn px-2 py-1 text-blue-600 hover:text-blue-800">Sửa</button>
+                                <button class="delete-btn px-2 py-1 text-red-600 hover:text-red-800">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add event listeners to dynamically created elements
+                tasks.forEach(task => {
+                    const taskEl = taskList.querySelector(`[data-task-id="${task.id}"]`);
+                    
+                    // Toggle complete status
+                    const checkbox = taskEl.querySelector('input[type="checkbox"]');
+                    checkbox.addEventListener('change', () => {
+                        this.taskManager.updateTask(task.id, { completed: checkbox.checked });
+                        this.renderTasks();
+                    });
+                    
+                    // Delete task
+                    const deleteBtn = taskEl.querySelector('.delete-btn');
+                    deleteBtn.addEventListener('click', () => {
+                        if (confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
+                            this.taskManager.deleteTask(task.id);
+                            this.renderTasks();
+                        }
+                    });
+                    
+                    // Edit task
+                    const editBtn = taskEl.querySelector('.edit-btn');
+                    editBtn.addEventListener('click', () => {
+                        this.showEditModal(task);
+                    });
+                });
+            }
+
+            showEditModal(task) {
+                // In a real app, we would implement a proper modal dialog
+                // For this example, we'll just pre-fill the form with task data
+                document.getElementById('taskTitle').value = task.title;
+                document.getElementById('taskDescription').value = task.description || '';
+                document.getElementById('taskDueDate').value = task.dueDate || '';
+                document.getElementById('taskPriority').value = task.priority;
+                document.getElementById('taskCategory').value = task.category;
+                
+                // Scroll to form and focus on title
+                document.getElementById('taskTitle').focus();
+                document.getElementById('taskForm').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskManager = new TaskManager();
+            new UIController(taskManager);
+        });
+    </script>
 </body>
 </html>
+
